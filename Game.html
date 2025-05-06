@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Divyanshu's App</title>
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; }
+
+    /* Loader */
+    #loader {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      font-size: 2rem;
+    }
+
+    .car-animation {
+      animation: drive 2s linear infinite;
+    }
+
+    @keyframes drive {
+      0% { transform: translateX(-100%); }
+      50% { transform: translateX(0); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      width: 200px;
+      height: 100%;
+      background: #333;
+      color: white;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      padding-top: 20px;
+      z-index: 1000;
+    }
+
+    .sidebar.visible { transform: translateX(0); }
+
+    .sidebar .profile-pic-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .sidebar img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar li {
+      padding: 15px;
+      border-bottom: 1px solid #444;
+    }
+
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+    }
+
+    #toggleSidebar {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      font-size: 20px;
+      z-index: 1100;
+      padding: 10px;
+    }
+
+    .main-content {
+      margin: 20px 40px 80px 60px;
+    }
+
+    input[type="text"], input[type="email"], input[type="date"], input[type="url"] {
+      display: block;
+      margin: 10px 0;
+      padding: 5px;
+      width: 250px;
+    }
+
+    .games-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .games-grid a {
+      text-decoration: none;
+      background: #f0f0f0;
+      padding: 15px;
+      border-radius: 8px;
+      color: #333;
+      font-weight: bold;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    }
+
+    #profilePreview, #imagePreview {
+      margin-top: 10px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid #ccc;
+    }
+
+    video {
+      display: block;
+      margin-top: 10px;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #eee;
+      color: #333;
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    #chatBox {
+      list-style: none;
+      padding: 5px;
+      margin-top: 10px;
+    }
+
+    #chatBox li {
+      background: #e0e0e0;
+      margin: 5px 0;
+      padding: 5px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loader -->
+  <div id="loader">
+    <div class="car-animation">🚗💨 Loading...</div>
+  </div>
+
+  <!-- Sidebar -->
+  <div id="sidebar" class="sidebar">
+    <div class="profile-pic-container">
+      <img id="sidebarProfilePic" src="https://via.placeholder.com/80" alt="Profile" />
+    </div>
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#profile">Profile</a></li>
+      <li><a href="#games">Games</a></li>
+      <li><a href="#war">WAR</a></li>
+      <li><a href="#about">About Us</a></li>
+      <li><a href="#help">Help</a></li>
+    </ul>
+  </div>
+
+  <!-- Toggle Button -->
+  <button id="toggleSidebar">☰</button>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <h2 id="home">Welcome to Divyanshu's App</h2>
+
+    <!-- Profile -->
+    <h3 id="profile">Edit Profile</h3>
+    <form id="profileForm">
+      <label>Name: <input type="text" id="name" /></label>
+      <label>Date of Birth: <input type="date" id="dob" /></label>
+      <label>Email: <input type="email" id="email" /></label>
+      <label>Facebook: <input type="url" id="facebook" placeholder="https://facebook.com/yourprofile" /></label>
+      <label>Twitter: <input type="url" id="twitter" placeholder="https://twitter.com/yourprofile" /></label>
+      <label>Instagram: <input type="url" id="instagram" placeholder="https://instagram.com/yourprofile" /></label>
+      <label>Profile Photo: <input type="file" id="photoInput" accept="image/*" /></label>
+      <img id="profilePreview" src="https://via.placeholder.com/80" alt="Preview" />
+      <button type="submit">Save</button>
+    </form>
+
+    <!-- Games Section -->
+    <h3 id="games">Games</h3>
+    <div class="games-grid">
+      <a href="#">🚗 Car Racing</a>
+      <a href="#">🐍 Snake</a>
+      <a href="#">🔵 Bubble Shoot</a>
+      <a href="#">🔫 Gun Shoot</a>
+      <a href="#">🦌 Animal Killing</a>
+      <a href="#">🚀 Space Aircraft</a>
+    </div>
+
+    <!-- WAR Section -->
+    <h3 id="war">WAR Zone</h3>
+
+    <!-- Video -->
+    <h4>Create a Video</h4>
+    <video id="videoPreview" width="320" height="240" controls></video>
+    <input type="file" id="videoInput" accept="video/*" />
+
+    <!-- Image Post -->
+    <h4>Post an Image</h4>
+    <input type="file" id="imageInput" accept="image/*" />
+    <img id="imagePreview" alt="Image Preview" />
+
+    <!-- Chat -->
+    <h4>Chat with Friends</h4>
+    <input type="text" id="yourId" placeholder="Your Unique ID" />
+    <input type="text" id="friendId" placeholder="Friend's Unique ID" />
+    <input type="text" id="chatMessage" placeholder="Type a message..." />
+    <button id="sendMessage">Send</button>
+    <ul id="chatBox"></ul>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    App is created by Divyanshu Pandey
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    // Loader
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.getElementById("loader").style.display = "none";
+      }, 2000);
+    });
+
+    // Sidebar toggle
+    document.getElementById("toggleSidebar").addEventListener("click", () => {
+      document.getElementById("sidebar").classList.toggle("visible");
+    });
+
+    // Profile image
+    document.getElementById("photoInput").addEventListener("change", function () {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          document.getElementById("profilePreview").src = e.target.result;
+          document.getElementById("sidebarProfilePic").src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Profile form
+    document.getElementById("profileForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      alert("Profile saved!");
+    });
+
+    // Video preview
+    document.getElementById("videoInput").addEventListener("change", function () {
+      const file = this.files[0];
+      if (file) {
+        document.getElementById("videoPreview").src = URL.createObjectURL(file);
+      }
+    });
+
+    // Image preview
+    document.getElementById("imageInput").addEventListener("change", function () {
+      const file = this.files[0];
+      if (file) {
+        document.getElementById("imagePreview").src = URL.createObjectURL(file);
+      }
+    });
+
+    // Socket.IO Chat
+    const socket = io("http://localhost:3000");
+    const yourIdInput = document.getElementById("yourId");
+    const friendIdInput = document.getElementById("friendId");
+    const messageInput = document.getElementById("chatMessage");
+    const chatBox = document.getElementById("chatBox");
+
+    yourIdInput.addEventListener("blur", () => {
+      const id = yourIdInput.value.trim();
+      if (id) socket.emit("setId", id);
+    });
+
+    document.getElementById("sendMessage").addEventListener("click", () => {
+      const msg = messageInput.value.trim();
+      const to = friendIdInput.value.trim();
+      if (msg && to) {
+        socket.emit("sendMessage", { to, message: `[${yourIdInput.value}] ${msg}` });
+        messageInput.value = "";
+      }
+    });
+
+    socket.on("receiveMessage", message => {
+      const li = document.createElement("li");
+      li.textContent = message;
+      chatBox.appendChild(li);
+    });
+  </script>
+</body>
+</html>
