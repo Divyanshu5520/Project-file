@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GSAP ScrollTrigger Enhanced</title>
+
+  <!-- GSAP core + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body  { margin: 0; font-family: system-ui, sans-serif; }
+    h1, h2{ margin: 0 0 0.5em; font-weight: 600; }
+    section{ min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 1rem; }
+
+    #hero      { background: #111; color: #fff; }
+    #reveal    { background: #f0f0f0; }
+
+    .box{
+      width: 140px; height: 140px;
+      background: tomato;
+      opacity: 0;
+      transform: translateY(150px);
+      margin: 1.5rem;
+      border-radius: 12px;
+    }
+    .box:nth-child(2){ background:#06c; }
+    .box:nth-child(3){ background:#2ecc71; }
+    .box:nth-child(4){ background:#e67e22; }
+    .box:nth-child(5){ background:#9b59b6; }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <section id="hero">
+    <h1>Enhanced GSAP ScrollTrigger</h1>
+    <p>Scroll down to see improved animations.</p>
+  </section>
+
+  <!-- BOX REVEAL -->
+  <section id="reveal">
+    <h2>1. Fade &amp; Slide In (adjusted triggers)</h2>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+  </section>
+
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Animate boxes (reveal on scroll)
+    gsap.utils.toArray(".box").forEach(box => {
+      gsap.to(box, {
+        y: 0,
+        opacity: 1,
+        duration: 1.4,
+        ease: "back.out(1.7)",
+        scrollTrigger: {
+          trigger: box,
+          start: "top 85%",   // starts when box enters bottom 15%
+          end: "bottom 60%",  // ends before fully exiting
+          toggleActions: "play none none reverse"
+        }
+      });
+    });
+  </script>
+</body>
+</html>
