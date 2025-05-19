@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>3D CSS Flip Book - Enhanced</title>
+  <style>
+    body {
+      min-height: 100vh;
+      margin: 0;
+      max-height: 100vh;
+      overflow: hidden;
+      background-color: #264653;
+      font-family: sans-serif;
+      color: #fff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .centered {
+      margin: auto;
+      width: max-content;
+    }
+
+    .flipbook {
+      margin: 3em auto;
+      width: 500px;
+      height: 400px;
+      position: relative;
+      transform-style: preserve-3d;
+      perspective: 1600px;
+      transition: transform 0.6s ease;
+    }
+
+    .flipbook:hover {
+      transform: perspective(1600px) rotateX(18deg) rotateY(0deg);
+      box-shadow: 0 45px 35px -10px rgba(0, 0, 0, 0.6);
+    }
+
+    .leaf {
+      position: absolute;
+      transform-style: preserve-3d;
+      height: 100%;
+      width: 50%;
+      background-color: transparent;
+      left: 50%;
+      transform-origin: left;
+      transition: transform 1s ease-in-out;
+      cursor: pointer;
+    }
+
+    .leaf .page {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      padding: 1em;
+      background: #f1faee;
+      color: #000;
+      transform-style: preserve-3d;
+      overflow: hidden;
+    }
+
+    .leaf .page.front {
+      transform: rotateY(0deg) translateZ(0.1px);
+      border-radius: 0em 1em 1em 0;
+    }
+
+    .leaf .page.back {
+      transform: rotateY(180deg) translateZ(0.1px);
+      border-radius: 1em 0em 0em 1em;
+    }
+
+    .pageNumber {
+      font-size: 0.95em;
+      position: absolute;
+      bottom: 0.5em;
+    }
+
+    .front .pageNumber {
+      right: 0.75em;
+    }
+
+    .back .pageNumber {
+      left: 0.75em;
+    }
+
+    .page-content {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      height: 100%;
+      gap: 1em;
+    }
+
+    .page-img {
+      flex: 0 0 40%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease, opacity 0.6s ease;
+      border-radius: 1em;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .page-text {
+      flex: 1;
+      overflow-y: auto;
+      max-height: 100%;
+    }
+
+    /* Image hover-up effect on active (turned) page */
+    .leaf.turned .page-img {
+      transform: translateY(-10px) scale(1.05);
+      opacity: 1;
+    }
+
+    /* Initial subtle curve effect */
+    .leaf:not(.turned) {
+      transform: rotateY(-5deg) translateZ(1px);
+    }
+
+    @media (max-width: 600px) {
+      .flipbook {
+        width: 90vw;
+        height: 60vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="flipbook centered" id="flipbook">
+    <div class="leaf">
+      <div class="page front">
+        <div class="page-content">
+          <a href="https://github.com/CodeCr4cker/Required-Document/blob/main/1.png" target="_blank">
+            <img src="https://placekitten.com/200/300" class="page-img" />
+          </a>
+          <div class="page-text">
+            <h3>Page 1</h3>
+            <p>Welcome to the 3D CSS Flip Book! This is the first page with an adorable kitten.</p>
+          </div>
+        </div>
+        <div class="pageNumber">1</div>
+      </div>
+      <div class="page back">
+        <div class="page-content">
+          <a href="https://github.com/CodeCr4cker/Required-Document/blob/main/1.png" target="_blank">
+            <img src="https://placekitten.com/201/300" class="page-img" />
+          </a>
+          <div class="page-text">
+            <h3>Page 2</h3>
+            <p>This is the back of the first leaf. More kittens are on their way!</p>
+          </div>
+        </div>
+        <div class="pageNumber">2</div>
+      </div>
+    </div>
+    <div class="leaf">
+      <div class="page front">
+        <div class="page-content">
+          <a href="https://github.com/CodeCr4cker/Required-Document/blob/main/1.png" target="_blank">
+            <img src="https://placekitten.com/202/300" class="page-img" />
+          </a>
+          <div class="page-text">
+            <h3>Page 3</h3>
+            <p>The third page brings another playful kitten. Isn't CSS magic?</p>
+          </div>
+        </div>
+        <div class="pageNumber">3</div>
+      </div>
+      <div class="page back">
+        <div class="page-content">
+          <a href="https://github.com/CodeCr4cker/Required-Document/blob/main/1.png" target="_blank">
+            <img src="https://placekitten.com/203/300" class="page-img" />
+          </a>
+          <div class="page-text">
+            <h3>Page 4</h3>
+            <p>This is the last page of this short demo flip book. Thanks for flipping!</p>
+          </div>
+        </div>
+        <div class="pageNumber">4</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    class FlipBook {
+      constructor(bookElem) {
+        this.bookElem = bookElem;
+        this.leaves = Array.from(bookElem.querySelectorAll(".leaf"));
+        this.currentPage = 0;
+        this.turnPage(0);
+        this.setupPageClicks();
+      }
+
+      setPagePosition(page, pos, index) {
+        let transform = `translate3d(0,0,${(pos < 0 ? 1 : -1) * Math.abs(index)}px)`;
+        if (pos < 0) {
+          transform += " rotateY(-180deg)";
+          page.classList.add("turned");
+        } else {
+          page.classList.remove("turned");
+        }
+        page.style.transform = transform;
+      }
+
+      turnPage(delta) {
+        this.currentPage += delta;
+        if (this.currentPage < 0) this.currentPage = 0;
+        if (this.currentPage > this.leaves.length) this.currentPage = this.leaves.length;
+        this.leaves.forEach((leaf, i) => {
+          this.setPagePosition(leaf, i - this.currentPage, i);
+        });
+      }
+
+      setupPageClicks() {
+        this.leaves.forEach((leaf, i) => {
+          leaf.addEventListener("click", () => {
+            if (i < this.currentPage) {
+              this.turnPage(-1);
+            } else {
+              this.turnPage(1);
+            }
+          });
+        });
+      }
+    }
+
+    new FlipBook(document.getElementById("flipbook"));
+  </script>
+</body>
+</html>
