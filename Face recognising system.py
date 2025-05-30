@@ -1,6 +1,7 @@
 import sys
 import cv2
 import dlib
+import mysql.connector
 import logging
 import sqlite3
 import numpy as np
@@ -24,6 +25,16 @@ logging.basicConfig(filename='face_protection.log', level=logging.INFO,
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 face_rec_model = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.dat")
+
+
+
+conn = mysql.connector.connect(
+    host="localhost",
+    user="your_mysql_username",
+    password="your_mysql_password",
+    database="face_protection"
+)
+cursor = conn.cursor()
 
 # SQLite DB setup
 conn = sqlite3.connect('users.db')
