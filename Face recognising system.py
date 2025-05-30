@@ -3,14 +3,13 @@ import cv2
 import dlib
 import mysql.connector
 import logging
-import sqlite3
 import numpy as np
 import time
 import os
 import pyttsx3
 from cryptography.fernet import Fernet
 from PyQt6.QtCore import Qt, QThread, Signal, QTimer
-from PyQt6.QtGui import QImage, QPixmap, QPainter, QColor, QPen
+from PyQt6.QtGui import QImage, QPixmap
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QLabel, QLineEdit,
     QPushButton, QVBoxLayout, QWidget, QMessageBox,
@@ -26,8 +25,7 @@ detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 face_rec_model = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.dat")
 
-
-
+# MySQL connection - update credentials accordingly
 conn = mysql.connector.connect(
     host="localhost",
     user="your_mysql_username",
@@ -36,25 +34,23 @@ conn = mysql.connector.connect(
 )
 cursor = conn.cursor()
 
-# SQLite DB setup
-conn = sqlite3.connect('users.db')
-cursor = conn.cursor()
+# Create tables if not exist
 cursor.execute('''
-    CREATE TABLE IF NOT EXISTS users (
-        name TEXT PRIMARY KEY,
-        embedding BLOB,
-        lockout_time INTEGER,
-        role TEXT DEFAULT 'user'
-    )
+CREATE TABLE IF NOT EXISTS users (
+    name VARCHAR(255) PRIMARY KEY,
+    embedding BLOB,
+    lockout_time BIGINT,
+    role VARCHAR(50) DEFAULT 'user'
+)
 ''')
 
 cursor.execute('''
-    CREATE TABLE IF NOT EXISTS file_keys (
-        username TEXT,
-        file_path TEXT,
-        key BLOB,
-        PRIMARY KEY(username, file_path)
-    )
+CREATE TABLE IF NOT EXISTS file_keys (
+    username VARCHAR(255),
+    file_path VARCHAR(1024),
+    `key` BLOB,
+    PRIMARY KEY (username, file_path)
+)
 ''')
 
 conn.commit()
@@ -136,11 +132,11 @@ class AdminWindow(QWidget):
         if not username:
             QMessageBox.warning(self, "Input Error", "Please enter a username.")
             return
-        cursor.execute("SELECT name FROM users WHERE name = ?", (username,))
+        cursor.execute("SELECT name FROM users WHERE name = %s", (username,))
         if cursor.fetchone():
             QMessageBox.warning(self, "Error", f"User '{username}' already exists.")
             return
-        cursor.execute("INSERT INTO users (name, embedding, lockout_time, role) VALUES (?, ?, ?, ?)",
+        cursor.execute("INSERT INTO users (name, embedding, lockout_time, role) VALUES (%s, %s, %s, %s)",
                        (username, None, 0, role))
         conn.commit()
         QMessageBox.information(self, "Success", f"User '{username}' added with role '{role}'.")
@@ -150,12 +146,12 @@ class AdminWindow(QWidget):
         if not username:
             QMessageBox.warning(self, "Input Error", "Please enter a username.")
             return
-        cursor.execute("SELECT name FROM users WHERE name = ?", (username,))
+        cursor.execute("SELECT name FROM users WHERE name = %s", (username,))
         if not cursor.fetchone():
             QMessageBox.warning(self, "Error", f"User '{username}' not found.")
             return
-        cursor.execute("DELETE FROM users WHERE name = ?", (username,))
-        cursor.execute("DELETE FROM file_keys WHERE username = ?", (username,))
+        cursor.execute("DELETE FROM users WHERE name = %s", (username,))
+        cursor.execute("DELETE FROM file_keys WHERE username = %s", (username,))
         conn.commit()
         QMessageBox.information(self, "Success", f"User '{username}' removed.")
 
@@ -166,7 +162,6 @@ class AdminWindow(QWidget):
             self.logs_display.setPlainText(logs)
         except FileNotFoundError:
             self.logs_display.setPlainText("No logs found.")
-
 
 # --- Main Window ---
 class MainWindow(QMainWindow):
@@ -233,11 +228,9 @@ class MainWindow(QMainWindow):
         self.failed_attempts = {}
 
     def update_camera_feed(self, frame):
-        # Draw landmarks on frame
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = detector(gray)
 
-        # Draw rectangle & landmarks
         for face in faces:
             x1, y1, x2, y2 = face.left(), face.top(), face.right(), face.bottom()
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
@@ -248,7 +241,6 @@ class MainWindow(QMainWindow):
 
         self.current_frame = frame
 
-        # Convert to QImage
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb_frame.shape
         bytes_per_line = ch * w
@@ -279,13 +271,13 @@ class MainWindow(QMainWindow):
         self.progress_bar.setValue(0)
         QApplication.processEvents()
 
-        cursor.execute("SELECT embedding FROM users WHERE name = ?", (username,))
+        cursor.execute("SELECT embedding FROM users WHERE name = %s", (username,))
         user = cursor.fetchone()
         if user is None:
-            cursor.execute("INSERT INTO users (name, embedding, lockout_time, role) VALUES (?, ?, ?, ?)",
+            cursor.execute("INSERT INTO users (name, embedding, lockout_time, role) VALUES (%s, %s, %s, %s)",
                            (username, self.face_descriptor.tobytes(), 0, 'user'))
         else:
-            cursor.execute("UPDATE users SET embedding = ?, lockout_time = 0 WHERE name = ?",
+            cursor.execute("UPDATE users SET embedding = %s, lockout_time = 0 WHERE name = %s",
                            (self.face_descriptor.tobytes(), username))
         conn.commit()
         logging.info(f"User '{username}' registered successfully.")
@@ -299,7 +291,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Input Error", "Please enter both username and file path.")
             return
 
-        cursor.execute("SELECT embedding, lockout_time FROM users WHERE name = ?", (username,))
+        cursor.execute("SELECT embedding, lockout_time FROM users WHERE name = %s", (username,))
         user = cursor.fetchone()
         if user is None:
             QMessageBox.warning(self, "Authentication Error", "User not found.")
@@ -328,104 +320,119 @@ class MainWindow(QMainWindow):
         MAX_ATTEMPTS = 3
         LOCKOUT_DURATION = 60  # seconds
 
+        attempts = self.failed_attempts.get(username, 0)
+
         if dist < 0.6:
-            self.progress_bar.setValue(100)
-            QMessageBox.information(self, "Access Granted", f"Access granted to {username}.")
-            logging.info(f"User '{username}' authenticated successfully.")
             self.failed_attempts[username] = 0
-            speak("Access granted")
-            self.protect_file(username, file_path)
-        else:
-            self.failed_attempts[username] = self.failed_attempts.get(username, 0) + 1
-            logging.warning(f"Authentication failed for user '{username}'. Attempt {self.failed_attempts[username]}")
-            if self.failed_attempts[username] >= MAX_ATTEMPTS:
-                lockout_until = current_time + LOCKOUT_DURATION
-                cursor.execute("UPDATE users SET lockout_time = ? WHERE name = ?", (lockout_until, username))
-                conn.commit()
-                QMessageBox.warning(self, "Locked Out", f"Too many failed attempts. Locked for {LOCKOUT_DURATION} seconds.")
-            else:
-                QMessageBox.warning(self, "Authentication Failed", "Face recognition failed.")
-            speak("Access denied")
-            self.progress_bar.setValue(0)
-
-    def protect_file(self, username, file_path):
-        if not os.path.exists(file_path):
-            QMessageBox.warning(self, "File Error", "File does not exist.")
-            return
-
-        # Check if key already exists for this user-file pair
-        cursor.execute("SELECT key FROM file_keys WHERE username = ? AND file_path = ?", (username, file_path))
-        key_row = cursor.fetchone()
-
-        if key_row is None:
-            key = Fernet.generate_key()
-            cursor.execute("INSERT INTO file_keys (username, file_path, key) VALUES (?, ?, ?)", (username, file_path, key))
+            cursor.execute("UPDATE users SET lockout_time = 0 WHERE name = %s", (username,))
             conn.commit()
+
+            # Protect file
+            try:
+                key = None
+                cursor.execute("SELECT `key` FROM file_keys WHERE username = %s AND file_path = %s", (username, file_path))
+                key_row = cursor.fetchone()
+                if key_row is None:
+                    key = Fernet.generate_key()
+                    cursor.execute("INSERT INTO file_keys (username, file_path, `key`) VALUES (%s, %s, %s)", (username, file_path, key))
+                    conn.commit()
+                else:
+                    key = key_row[0]
+
+                fernet = Fernet(key)
+                with open(file_path, "rb") as file:
+                    original = file.read()
+
+                encrypted = fernet.encrypt(original)
+                enc_file_path = file_path + ".enc"
+                with open(enc_file_path, "wb") as encrypted_file:
+                    encrypted_file.write(encrypted)
+
+                self.progress_bar.setValue(100)
+                speak("File protected")
+                logging.info(f"User '{username}' protected file '{file_path}'.")
+                QMessageBox.information(self, "Success", f"File encrypted and saved as {enc_file_path}")
+
+            except Exception as e:
+                logging.error(f"Error protecting file: {e}")
+                QMessageBox.critical(self, "Error", f"Could not protect file: {e}")
+
         else:
-            key = key_row[0]
-
-        cipher = Fernet(key)
-
-        with open(file_path, 'rb') as f:
-            data = f.read()
-
-        encrypted_data = cipher.encrypt(data)
-
-        enc_path = file_path + ".enc"
-        with open(enc_path, 'wb') as f:
-            f.write(encrypted_data)
-
-        QMessageBox.information(self, "File Protected", f"File encrypted at:\n{enc_path}")
-        logging.info(f"File '{file_path}' encrypted for user '{username}'.")
+            attempts += 1
+            self.failed_attempts[username] = attempts
+            if attempts >= MAX_ATTEMPTS:
+                lockout_until = current_time + LOCKOUT_DURATION
+                cursor.execute("UPDATE users SET lockout_time = %s WHERE name = %s", (lockout_until, username))
+                conn.commit()
+                QMessageBox.warning(self, "Locked Out", f"Too many failed attempts. Locked until {time.ctime(lockout_until)}.")
+                speak("Access denied")
+                logging.warning(f"User '{username}' locked out due to failed attempts.")
+            else:
+                QMessageBox.warning(self, "Authentication Failed", f"Face mismatch. Attempts left: {MAX_ATTEMPTS - attempts}")
+                speak("Access denied")
+            self.progress_bar.setValue(0)
 
     def decrypt_file(self):
         username = self.username_input.text().strip()
-        if not username:
-            QMessageBox.warning(self, "Input Error", "Please enter your username to decrypt.")
+        enc_file_path = self.file_input.text().strip()
+        if not username or not enc_file_path or not enc_file_path.endswith(".enc"):
+            QMessageBox.warning(self, "Input Error", "Please enter username and encrypted file path ending with .enc")
             return
 
-        # Pick file to decrypt
-        enc_file_path, _ = QFileDialog.getOpenFileName(self, "Select Encrypted File", "", "Encrypted Files (*.enc)")
-        if not enc_file_path:
-            return
+        orig_file_path = enc_file_path[:-4]
 
-        cursor.execute("SELECT key FROM file_keys WHERE username = ? AND file_path = ?", (username, enc_file_path[:-4]))
+        cursor.execute("SELECT `key` FROM file_keys WHERE username = %s AND file_path = %s", (username, orig_file_path))
         key_row = cursor.fetchone()
         if key_row is None:
-            QMessageBox.warning(self, "Error", "No encryption key found for this file and user.")
+            QMessageBox.warning(self, "Error", "No encryption key found for this user and file.")
+            speak("Access denied")
             return
 
         key = key_row[0]
-        cipher = Fernet(key)
 
         try:
-            with open(enc_file_path, 'rb') as f:
-                encrypted_data = f.read()
+            fernet = Fernet(key)
+            with open(enc_file_path, "rb") as enc_file:
+                encrypted_data = enc_file.read()
 
-            decrypted_data = cipher.decrypt(encrypted_data)
+            decrypted = fernet.decrypt(encrypted_data)
 
-            save_path, _ = QFileDialog.getSaveFileName(self, "Save Decrypted File As", enc_file_path[:-4])
-            if save_path:
-                with open(save_path, 'wb') as f:
-                    f.write(decrypted_data)
-                QMessageBox.information(self, "Success", f"File decrypted and saved to {save_path}.")
-                logging.info(f"File '{enc_file_path}' decrypted by user '{username}'.")
+            with open(orig_file_path, "wb") as dec_file:
+                dec_file.write(decrypted)
+
+            QMessageBox.information(self, "Success", f"File decrypted and saved as {orig_file_path}")
+            logging.info(f"User '{username}' decrypted file '{orig_file_path}'")
+            speak("File decrypted")
+
         except Exception as e:
-            QMessageBox.warning(self, "Decryption Failed", f"Failed to decrypt file: {str(e)}")
+            logging.error(f"Decryption error: {e}")
+            QMessageBox.critical(self, "Error", f"Could not decrypt file: {e}")
+            speak("Access denied")
 
     def admin_login(self):
+        username, ok = QInputDialog.getText(self, "Admin Login", "Enter admin username:")
+        if not ok or not username:
+            return
         password, ok = QInputDialog.getText(self, "Admin Login", "Enter admin password:", QLineEdit.EchoMode.Password)
-        if ok:
-            if password == "admin123":  # Change to secure password or use hashed check
-                self.admin_window = AdminWindow(self)
-                self.admin_window.show()
-            else:
-                QMessageBox.warning(self, "Access Denied", "Incorrect admin password.")
+        if not ok or not password:
+            return
+
+        # Here you can implement proper password verification.
+        # For demo, check if user is admin and password == "adminpass"
+        cursor.execute("SELECT role FROM users WHERE name = %s", (username,))
+        result = cursor.fetchone()
+        if result and result[0] == 'admin' and password == "adminpass":
+            self.admin_panel = AdminWindow(self)
+            self.admin_panel.show()
+        else:
+            QMessageBox.warning(self, "Login Failed", "Invalid admin credentials.")
+            speak("Access denied")
 
     def closeEvent(self, event):
         self.video_thread.stop()
-        super().closeEvent(event)
-
+        cursor.close()
+        conn.close()
+        event.accept()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
