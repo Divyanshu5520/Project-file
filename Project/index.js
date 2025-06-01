@@ -1,8 +1,6 @@
-// index.js
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css'; // Tailwind CSS or custom styles
+import './index.css'; // Ensure this file exists in the src folder
 import App from './App';
 // import { BrowserRouter } from 'react-router-dom'; // Uncomment if using routing
 
@@ -10,9 +8,8 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>
-    {/* Uncomment <BrowserRouter> if you're using React Router */}
     {/* <BrowserRouter> */}
-      <App />
+    <App />
     {/* </BrowserRouter> */}
   </React.StrictMode>
 );
