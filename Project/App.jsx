@@ -12,10 +12,7 @@ import {
   doc,
   setDoc,
   getDocs,
-  updateDoc,
-  deleteDoc,
-  onDisconnect,
-  getDoc
+  deleteDoc
 } from "firebase/firestore";
 
 export default function App() {
@@ -136,9 +133,7 @@ export default function App() {
           {rooms.map((r) => (
             <li
               key={r}
-              className={`cursor-pointer p-2 rounded ${
-                room === r ? "bg-cyan-700" : "hover:bg-gray-700"
-              }`}
+              className={`cursor-pointer p-2 rounded ${room === r ? "bg-cyan-700" : "hover:bg-gray-700"}`}
               onClick={() => setRoom(r)}
             >
               #{r}
@@ -162,9 +157,7 @@ export default function App() {
             messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex gap-2 p-2 rounded ${
-                  msg.user === username ? "bg-cyan-800 self-end" : "bg-gray-800"
-                }`}
+                className={`flex gap-2 p-2 rounded ${msg.user === username ? "bg-cyan-800 self-end" : "bg-gray-800"}`}
               >
                 <img src={msg.avatar} alt="avatar" className="w-8 h-8 rounded-full" />
                 <div>
