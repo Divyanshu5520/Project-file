@@ -1,5 +1,3 @@
-// firebase.js
-
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAnalytics, isSupported } from "firebase/analytics";
@@ -22,6 +20,6 @@ export const db = getFirestore(app);
 // Conditionally initialize analytics
 isSupported().then((supported) => {
   if (supported) {
-    getAnalytics(app);
+    getAnalytics(app); // Removed unused variable
   }
 });
