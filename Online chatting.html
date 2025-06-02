@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat App UI</title>
+  <style>
+    :root {
+      --bg-color: #f0f0f0;
+      --text-color: #333;
+      --sidebar-bg: #fff;
+      --accent-color: #6200ea;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #121212;
+      --text-color: #f0f0f0;
+      --sidebar-bg: #1e1e1e;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      background-color: var(--sidebar-bg);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-right: 1px solid #ccc;
+    }
+
+    .profile-pic {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .username {
+      margin: 10px 0;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .sidebar button {
+      width: 100%;
+      margin: 5px 0;
+      padding: 10px;
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .friends {
+      margin-top: 20px;
+      width: 100%;
+      overflow-y: auto;
+      flex-grow: 1;
+    }
+
+    .friend {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .friend.online::after {
+      content: '●';
+      color: green;
+    }
+
+    .friend.offline::after {
+      content: '●';
+      color: gray;
+    }
+
+    .content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .chat-box {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    .message {
+      background-color: var(--accent-color);
+      color: white;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 10px;
+      max-width: 70%;
+      align-self: flex-end;
+    }
+
+    .typing-indicator {
+      font-size: 0.9em;
+      color: gray;
+      height: 20px;
+    }
+
+    .input-box {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      align-items: center;
+    }
+
+    .input-box input {
+      flex-grow: 1;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .input-box button {
+      padding: 10px 20px;
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .emoji-picker {
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background-color: var(--sidebar-bg);
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+      position: relative;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <img src="https://via.placeholder.com/100" alt="Profile" class="profile-pic" id="profilePic">
+    <div class="username" id="usernameDisplay">Username</div>
+    <button data-modal="settingsModal">Settings</button>
+    <button data-modal="profileModal">Profile</button>
+
+    <div class="friends">
+      <div class="friend online">Alice</div>
+      <div class="friend offline">Bob</div>
+      <div class="friend online">Charlie</div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="content">
+    <div class="chat-box" id="chatBox"></div>
+    <div class="typing-indicator" id="typingIndicator"></div>
+    <div class="input-box">
+      <span class="emoji-picker" id="emojiBtn">😊</span>
+      <input type="text" id="messageInput" placeholder="Type a message..." />
+      <button id="sendBtn">Send</button>
+    </div>
+  </main>
+
+  <!-- Settings Modal -->
+  <div class="modal" id="settingsModal">
+    <div class="modal-content">
+      <span class="close-btn" data-close>&times;</span>
+      <h3>Settings</h3>
+      <label>
+        <input type="checkbox" id="themeToggle" /> Dark Mode
+      </label>
+    </div>
+  </div>
+
+  <!-- Profile Modal -->
+  <div class="modal" id="profileModal">
+    <div class="modal-content">
+      <span class="close-btn" data-close>&times;</span>
+      <h3>Edit Profile</h3>
+      <input type="text" id="usernameInput" placeholder="New Username" />
+      <input type="email" id="emailInput" placeholder="Email ID" />
+      <input type="file" id="profilePicInput" />
+      <button id="saveProfile">Save</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Modal control
+      document.querySelectorAll('[data-modal]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById(btn.getAttribute('data-modal')).classList.add('active');
+        });
+      });
+
+      document.querySelectorAll('[data-close]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.closest('.modal').classList.remove('active');
+        });
+      });
+
+      // Theme toggle
+      document.getElementById('themeToggle').addEventListener('change', (e) => {
+        document.documentElement.setAttribute('data-theme', e.target.checked ? 'dark' : 'light');
+      });
+
+      // Profile update
+      document.getElementById('saveProfile').addEventListener('click', () => {
+        const username = document.getElementById('usernameInput').value;
+        const profilePic = document.getElementById('profilePicInput').files[0];
+        if (username) document.getElementById('usernameDisplay').textContent = username;
+        if (profilePic) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            document.getElementById('profilePic').src = e.target.result;
+          };
+          reader.readAsDataURL(profilePic);
+        }
+        document.getElementById('profileModal').classList.remove('active');
+      });
+
+      const messageInput = document.getElementById('messageInput');
+      const chatBox = document.getElementById('chatBox');
+      const sendBtn = document.getElementById('sendBtn');
+      const typingIndicator = document.getElementById('typingIndicator');
+      const emojiBtn = document.getElementById('emojiBtn');
+
+      const emojiList = ['😊', '😂', '❤️', '👍', '😎', '🎉'];
+      let emojiIndex = 0;
+
+      emojiBtn.addEventListener('click', () => {
+        messageInput.value += emojiList[emojiIndex];
+        emojiIndex = (emojiIndex + 1) % emojiList.length;
+        messageInput.focus();
+      });
+
+      messageInput.addEventListener('input', () => {
+        typingIndicator.textContent = messageInput.value ? "You are typing..." : "";
+      });
+
+      function renderMessages() {
+        const savedMessages = JSON.parse(localStorage.getItem('chatMessages') || '[]');
+        chatBox.innerHTML = '';
+        savedMessages.forEach(msg => {
+          const bubble = document.createElement('div');
+          bubble.className = 'message';
+          bubble.textContent = msg;
+          chatBox.appendChild(bubble);
+        });
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      function sendMessage() {
+        const text = messageInput.value.trim();
+        if (text) {
+          let savedMessages = JSON.parse(localStorage.getItem('chatMessages') || '[]');
+          savedMessages.push(text);
+          localStorage.setItem('chatMessages', JSON.stringify(savedMessages));
+          messageInput.value = '';
+          typingIndicator.textContent = '';
+          renderMessages();
+        }
+      }
+
+      sendBtn.addEventListener('click', sendMessage);
+      messageInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') sendMessage();
+      });
+
+      renderMessages(); // Initial load
+    });
+  </script>
+</body>
+</html>
