@@ -94,7 +94,6 @@
       border-radius: 8px;
       padding: 10px;
       overflow: hidden;
-     
     }
 
     .chat-header {
@@ -203,7 +202,7 @@
       background-color: var(--sidebar-bg);
       padding: 20px;
       border-radius: 8px;
-      width: 300px;
+      width: 320px;
       position: relative;
     }
 
@@ -211,6 +210,12 @@
       width: 100%;
       padding: 8px;
       margin: 8px 0;
+      box-sizing: border-box;
+    }
+
+    .modal-content label {
+      display: block;
+      margin-top: 10px;
     }
 
     .close-btn {
@@ -255,20 +260,39 @@
     </div>
   </main>
 
-  <!-- Modals -->
+  <!-- Settings Modal -->
   <div class="modal" id="settingsModal">
     <div class="modal-content">
       <span class="close-btn" data-close>&times;</span>
       <h3>Settings</h3>
+      
       <label><input type="checkbox" id="themeToggle" /> Dark Mode</label>
+      
       <hr />
       <h4>Set Chat Password</h4>
       <input type="text" id="passwordUser" placeholder="Friend Name (e.g. Alice)" />
       <input type="password" id="chatPasswordInput" placeholder="Set password" />
       <button id="savePasswordBtn">Save Password</button>
+
+      <hr />
+      <h4>Change Your Password</h4>
+      <input type="password" id="oldPassword" placeholder="Old Password" />
+      <input type="password" id="newPassword" placeholder="New Password" />
+      <button id="changePasswordBtn">Change Password</button>
+
+      <hr />
+      <h4>Change Username</h4>
+      <input type="text" id="changeUsernameInput" placeholder="New Username" />
+      <button id="changeUsernameBtn">Change Username</button>
+
+      <hr />
+      <h4>Delete Account</h4>
+      <input type="password" id="deletePassword" placeholder="Confirm Password" />
+      <button id="deleteAccountBtn" style="background-color: #b00020;">Delete Account</button>
     </div>
   </div>
 
+  <!-- Profile Modal -->
   <div class="modal" id="profileModal">
     <div class="modal-content">
       <span class="close-btn" data-close>&times;</span>
@@ -296,6 +320,27 @@
       const backBtn = document.getElementById('backBtn');
       let currentChat = null;
 
+      // Simulated current user info stored in localStorage (demo)
+      // For real app, replace with real auth and user management
+      if (!localStorage.getItem('userInfo')) {
+        localStorage.setItem('userInfo', JSON.stringify({
+          username: 'Username',
+          password: 'password123', // default password for demo
+          email: 'user@example.com'
+        }));
+      }
+
+      function getUserInfo() {
+        return JSON.parse(localStorage.getItem('userInfo'));
+      }
+      function setUserInfo(data) {
+        localStorage.setItem('userInfo', JSON.stringify(data));
+      }
+
+      // Initialize username display
+      const userInfo = getUserInfo();
+      document.getElementById('usernameDisplay').textContent = userInfo.username;
+
       menuBtn.addEventListener('click', () => {
         sidebar.classList.toggle('visible');
       });
@@ -312,23 +357,96 @@
         });
       });
 
-      document.getElementById('themeToggle').addEventListener('change', (e) => {
+      // Theme toggle
+      const themeToggle = document.getElementById('themeToggle');
+      themeToggle.checked = document.documentElement.getAttribute('data-theme') === 'dark';
+      themeToggle.addEventListener('change', (e) => {
         document.documentElement.setAttribute('data-theme', e.target.checked ? 'dark' : 'light');
       });
 
+      // Save chat password for friend
       document.getElementById('savePasswordBtn').addEventListener('click', () => {
-        const user = document.getElementById('passwordUser').value;
-        const pwd = document.getElementById('chatPasswordInput').value;
+        const user = document.getElementById('passwordUser').value.trim();
+        const pwd = document.getElementById('chatPasswordInput').value.trim();
         if (user && pwd) {
           localStorage.setItem('chatPassword:' + user, pwd);
           alert('Password set for ' + user);
+          document.getElementById('passwordUser').value = '';
+          document.getElementById('chatPasswordInput').value = '';
+        } else {
+          alert('Please enter friend name and password.');
         }
       });
 
+      // Change account password
+      document.getElementById('changePasswordBtn').addEventListener('click', () => {
+        const oldPwd = document.getElementById('oldPassword').value;
+        const newPwd = document.getElementById('newPassword').value;
+        if (!oldPwd || !newPwd) {
+          alert('Please enter both old and new password.');
+          return;
+        }
+        const info = getUserInfo();
+        if (oldPwd !== info.password) {
+          alert('Old password is incorrect.');
+          return;
+        }
+        info.password = newPwd;
+        setUserInfo(info);
+        alert('Password changed successfully.');
+        document.getElementById('oldPassword').value = '';
+        document.getElementById('newPassword').value = '';
+      });
+
+      // Change username
+      document.getElementById('changeUsernameBtn').addEventListener('click', () => {
+        const newUsername = document.getElementById('changeUsernameInput').value.trim();
+        if (!newUsername) {
+          alert('Enter a new username.');
+          return;
+        }
+        const info = getUserInfo();
+        info.username = newUsername;
+        setUserInfo(info);
+        document.getElementById('usernameDisplay').textContent = newUsername;
+        alert('Username changed successfully.');
+        document.getElementById('changeUsernameInput').value = '';
+      });
+
+      // Delete account
+      document.getElementById('deleteAccountBtn').addEventListener('click', () => {
+        const pwd = document.getElementById('deletePassword').value;
+        if (!pwd) {
+          alert('Please enter your password to confirm.');
+          return;
+        }
+        const info = getUserInfo();
+        if (pwd !== info.password) {
+          alert('Incorrect password.');
+          return;
+        }
+        // Delete user data from localStorage (simulate account delete)
+        localStorage.removeItem('userInfo');
+        // Optionally remove all chat messages and chat passwords
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('messages:') || key.startsWith('chatPassword:')) {
+            localStorage.removeItem(key);
+          }
+        });
+        alert('Account deleted. Reloading page.');
+        location.reload();
+      });
+
+      // Profile modal save (username & profile pic)
       document.getElementById('saveProfile').addEventListener('click', () => {
-        const username = document.getElementById('usernameInput').value;
+        const username = document.getElementById('usernameInput').value.trim();
         const profilePic = document.getElementById('profilePicInput').files[0];
-        if (username) document.getElementById('usernameDisplay').textContent = username;
+        if (username) {
+          const info = getUserInfo();
+          info.username = username;
+          setUserInfo(info);
+          document.getElementById('usernameDisplay').textContent = username;
+        }
         if (profilePic) {
           const reader = new FileReader();
           reader.onload = (e) => {
@@ -337,8 +455,13 @@
           reader.readAsDataURL(profilePic);
         }
         document.getElementById('profileModal').classList.remove('active');
+        // Clear inputs
+        document.getElementById('usernameInput').value = '';
+        document.getElementById('emailInput').value = '';
+        document.getElementById('profilePicInput').value = '';
       });
 
+      // Chat selection with password protection
       chatList.querySelectorAll('button').forEach(btn => {
         btn.addEventListener('click', () => {
           const name = btn.getAttribute('data-user');
@@ -388,6 +511,7 @@
       emojiBtn.addEventListener('click', () => {
         emojiPanel.style.display = emojiPanel.style.display === 'none' ? 'block' : 'none';
       });
+
     });
   </script>
 </body>
