@@ -2,10 +2,17 @@ import PyPDF2
 import itertools
 import string
 from tkinter import filedialog, Tk, simpledialog
+from tqdm import tqdm  # Import tqdm for the progress bar
 
 def unlock_pdf(pdf_path, max_length):
     # Define the character set for the password
     chars = string.ascii_letters + string.digits + string.punctuation
+
+    # Calculate the total number of possible passwords to try
+    total_attempts = sum(len(chars) ** length for length in range(1, max_length + 1))
+
+    # Initialize the progress bar
+    progress_bar = tqdm(total=total_attempts, desc="Trying passwords", unit="attempt")
 
     # Try passwords of increasing length up to max_length
     for length in range(1, max_length + 1):
@@ -16,10 +23,15 @@ def unlock_pdf(pdf_path, max_length):
                     pdf_reader = PyPDF2.PdfReader(file)
                     if pdf_reader.is_encrypted:
                         if pdf_reader.decrypt(password):
+                            progress_bar.close()
                             print(f"Password found: {password}")
                             return password
             except Exception as e:
                 print(f"Error trying password {password}: {e}")
+            finally:
+                progress_bar.update(1)  # Update the progress bar after each attempt
+
+    progress_bar.close()
     return None
 
 def pdf_to_text(pdf_path, password=None):
