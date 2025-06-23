@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Divyanshu Pandey - Portfolio</title>
+  <meta name="description" content="Divyanshu Pandey's personal portfolio." />
+  <meta name="keywords" content="Divyanshu Pandey, portfolio, HTML, CSS, web developer, student" />
+  <meta name="author" content="Divyanshu Pandey" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Play:wght@700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <style>
+    /* === Root Variables === */
+    :root {
+      --white: #ffffff;
+      --black: #000;
+      --primary-pink: #ff0000;
+      --secondary-grey: rgb(192, 237, 255);
+      --secondary-pink: rgb(76, 0, 255);
+      --footer-black: #222;
+      --card-bg: #f5f5ff;
+      --timeline-dot: #ff0000;
+      --progress-bg: #eee;
+      --progress-fill: #ff0000;
+      --testimonial-bg: #f6e9ff;
+    }
+    [data-theme="dark"] {
+      --white: #181818;
+      --black: #fff;
+      --primary-pink: white;
+      --secondary-grey: #222;
+      --secondary-pink: #8e44ad;
+      --footer-black: #111;
+      --card-bg: #222;
+      --timeline-dot: #ff69b4;
+      --progress-bg: #555;
+      --progress-fill: #ff69b4;
+      --testimonial-bg: #2e2e2e;
+    }
+
+    /* === Basic Reset === */
+    * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.2s, color 0.2s; }
+    body { font-family: 'Poppins', sans-serif; background: var(--white); color: var(--black); min-height: 100vh; }
+    html { font-size: 62.5%; scroll-behavior: smooth; }
+    a { color: var(--black); text-decoration: none; }
+    li { list-style: none; }
+
+    /* === Typography === */
+    h1, h2, h3, h4, p { color: var(--black); }
+    h1 { font-size: 3.9rem; font-family: 'Play', sans-serif; }
+    h2 { font-size: 1.9rem; }
+    h3 { font-size: 3rem; color: var(--primary-pink); }
+    h4 { font-size: 2rem; }
+    p { font-size: 1.7rem; margin: 1rem 0 2rem; }
+
+    /* === Buttons & Layout === */
+    .primary-btn {
+      background: var(--primary-pink);
+      border: 0.1rem solid var(--primary-pink);
+      color: var(--white);
+      padding: 0.6rem 1.5rem;
+      font-size: 2.1rem;
+      border-radius: 5rem;
+      cursor: pointer;
+    }
+    .primary-btn:hover {
+      background: var(--secondary-pink);
+      border-color: var(--secondary-pink);
+    }
+
+    .section { padding: 6rem 0; text-align: center; }
+    .container { width: 90%; max-width: 1200px; margin: auto; }
+    .row-container, .column-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .row-container { flex-direction: row; gap: 7rem; }
+    .column-container { flex-direction: column; gap: 3rem; }
+
+    .bg-grey { background: var(--secondary-grey); }
+    .bg-black { background: var(--footer-black); }
+
+    /* === Theme Toggle & Back to Top === */
+    #theme-toggle, #back-to-top {
+      position: fixed;
+      width: 4rem; height: 4rem;
+      border-radius: 50%;
+      border: none;
+      font-size: 2rem;
+      z-index: 1000;
+    }
+    #theme-toggle {
+      top: 1rem; right: 1rem;
+      background: var(--primary-pink); color: var(--white);
+    }
+    #back-to-top {
+      bottom: 2rem; right: 2rem;
+      background: var(--secondary-pink); color: #fff;
+      display: none;
+    }
+
+    /* === Navbar === */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.7rem 10%;
+      background: var(--white);
+      height: 6.5rem;
+      box-shadow: 0 1px 4px rgba(146,161,176,.3);
+      z-index: 1000;
+    }
+    header .logo { font-size: 2.2rem; font-weight: bold; }
+    header .navbar ul { display: flex; }
+    header .navbar li { margin-left: 2.5rem; }
+    header .navbar a { font-size: 1.57rem; font-weight: 600; }
+    header .navbar a:hover, header .navbar a:focus {
+      color: var(--primary-pink);
+      border-bottom: 0.2rem solid var(--primary-pink);
+    }
+    #menu-btn { display: none; }
+
+    /* === Hero === */
+    .img-container {
+      width: 30rem; height: 30rem; border-radius: 50%;
+      overflow: hidden; position: relative;
+      background: linear-gradient(var(--secondary-pink), transparent);
+    }
+    .img-container img {
+      position: absolute;
+      bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 80%; border-radius: 50%;
+      border: 0.3rem solid var(--primary-pink);
+    }
+
+    /* === Skills === */
+    .skills-list { max-width: 600px; margin: auto; }
+    .skillbar { margin: 1rem 0; text-align: left; }
+    .bar { background: var(--progress-bg); height: 1.2rem; border-radius: 0.6rem; overflow: hidden; }
+    .progress { height: 100%; background: var(--progress-fill); border-radius: 0.6rem; }
+
+    /* === Projects, Achievements, Blog Cards === */
+    .projects-grid, .achievements-grid, .blog-list {
+      display: flex; flex-wrap: wrap; gap: 2rem; justify-content: center;
+    }
+    .project-card, .achievement-card, .blog-card {
+      background: var(--card-bg); padding: 2rem; border-radius: 1rem;
+      width: 300px; box-shadow: 0 2px 8px rgba(100,0,100,0.07); text-align: center;
+    }
+
+    /* === Testimonials === */
+    .testimonials-carousel {
+      max-width: 600px; margin: auto;
+      background: var(--testimonial-bg);
+      padding: 2rem; border-radius: 1rem;
+    }
+    .testimonial { display: none; font-size: 1.5rem; }
+    .testimonial.active { display: block; animation: fadeIn 0.8s; }
+    .carousel-btn {
+      position: absolute; bottom: 1rem;
+      background: var(--primary-pink); color: white;
+      border-radius: 50%; border: none;
+      width: 3rem; height: 3rem;
+      font-size: 2rem; cursor: pointer;
+    }
+    .carousel-btn.prev { left: 1rem; }
+    .carousel-btn.next { right: 1rem; }
+
+    /* === Footer === */
+    .footer-section {
+      background: var(--footer-black);
+      color: white;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    /* === Responsive === */
+    @media (max-width: 900px) {
+      header .navbar {
+        position: absolute; top: 100%; right: 0;
+        background: var(--white); max-width: 300px;
+        width: 100vw; transform: translateX(100%);
+        transition: transform 0.3s ease;
+      }
+      header .navbar.active { transform: translateX(0); }
+      header .navbar ul { flex-direction: column; padding: 2rem; }
+      #menu-btn { display: block; font-size: 2.5rem; background: none; color: var(--primary-pink); }
+      .row-container { flex-direction: column; gap: 3rem; }
+      .img-container { width: 18rem; height: 18rem; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(2rem); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Dark/Light Mode -->
+  <button id="theme-toggle" aria-label="Toggle theme"><i class="fa-solid fa-moon"></i></button>
+  <button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top"><i class="fa fa-arrow-up"></i></button>
+
+  <!-- Navbar -->
+  <header>
+    <a href="#" class="logo">Divyanshu Pandey</a>
+    <button id="menu-btn" class="fa fa-bars" aria-label="Menu"></button>
+    <nav class="navbar">
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#education">Education</a></li>
+        <li><a href="#achievements">Achievements</a></li>
+        <li><a href="#testimonials">Testimonials</a></li>
+        <li><a href="#blog">Blog</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Sections (Only Home + Contact shown for brevity) -->
+  <section id="home" class="section bg-grey row-container">
+    <div class="content">
+      <h3>Hello!</h3>
+      <h2><span id="typing"></span></h2>
+      <p>I’m Divyanshu Pandey, a student passionate about HTML & CSS.</p>
+      <a href="#about" class="primary-btn">Explore Me</a>
+    </div>
+    <div class="img-container">
+      <img src="https://raw.githubusercontent.com/CodeCr4cker/About/main/Img/itz.png" alt="Divyanshu Pandey" />
+    </div>
+  </section>
+
+  <section id="contact" class="section">
+    <div class="container column-container">
+      <h1>Contact Me</h1>
+      <form id="contact-form">
+        <input type="text" placeholder="Name" required>
+        <input type="email" placeholder="Email" required>
+        <textarea rows="5" placeholder="Message" required></textarea>
+        <input type="submit" class="primary-btn" value="Send Message">
+        <p id="contact-success" style="display:none; color:green; margin-top:1rem;">Thank you! Your message has been sent.</p>
+      </form>
+    </div>
+  </section>
+
+  <footer class="footer-section">
+    <pre>© <span id="year"></span> Divyanshu Pandey</pre>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    window.onload = function () {
+      // Dark/Light Theme Toggle
+      const themeToggle = document.getElementById('theme-toggle');
+      themeToggle.onclick = () => {
+        const isDark = document.body.getAttribute('data-theme') === 'dark';
+        document.body.setAttribute('data-theme', isDark ? '' : 'dark');
+        themeToggle.innerHTML = isDark ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+      };
+
+      // Hamburger
+      const menuBtn = document.getElementById('menu-btn');
+      const navbar = document.querySelector('header .navbar');
+      menuBtn.onclick = () => {
+        navbar.classList.toggle('active');
+        menuBtn.classList.toggle('fa-xmark');
+        menuBtn.classList.toggle('fa-bars');
+      };
+
+      // Typing effect
+      const typingTarget = document.getElementById('typing');
+      const typingTexts = [
+        "I'm Divyanshu Pandey",
+        "Web Developer",
+        "Student & Coder",
+        "HTML & CSS Enthusiast"
+      ];
+      let tIdx = 0, lIdx = 0, isDeleting = false;
+      function type() {
+        let text = typingTexts[tIdx];
+        typingTarget.textContent = isDeleting ? text.substring(0, lIdx--) : text.substring(0, lIdx++);
+        if (!isDeleting && lIdx === text.length + 1) setTimeout(() => isDeleting = true, 1000);
+        else if (isDeleting && lIdx === 0) { tIdx = (tIdx + 1) % typingTexts.length; isDeleting = false; }
+        setTimeout(type, isDeleting ? 60 : 100);
+      }
+      type();
+
+      // Back to Top
+      const backToTop = document.getElementById('back-to-top');
+      window.onscroll = () => {
+        backToTop.style.display = window.scrollY > 300 ? 'block' : 'none';
+      };
+
+      // Contact Form
+      document.getElementById('contact-form').onsubmit = function (e) {
+        e.preventDefault();
+        document.getElementById('contact-success').style.display = 'block';
+        this.reset();
+        setTimeout(() => {
+          document.getElementById('contact-success').style.display = 'none';
+        }, 5000);
+      };
+
+      // Footer Year
+      document.getElementById('year').textContent = new Date().getFullYear();
+    };
+  </script>
+</body>
+</html>
