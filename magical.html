@@ -226,14 +226,9 @@ html{
     color: var(--white);
     padding: .6rem 1.5rem;
 }
-
  .bg-black{
-    /* background-color: var(--black); */
-    /* background-color: red; */
     background-image: linear-gradient(gray, rgb(153, 151, 151), gray);
 } 
-
-
 .section{
   background-image: url("https://wallpaperaccess.com/full/7079546.jpg");
     padding: 6rem 0;
@@ -242,11 +237,6 @@ html{
     align-items: center;
     }
   .container{
-
-
-
-
-
     width: 80%;
     margin: auto;
     padding: 0 2rem;
@@ -299,16 +289,7 @@ html{
     border-radius: 50%;
     height: 15rem;
     width: 15rem;
-        }
-
-
-
-
-
-
-
-
-
+   }
    @keyframes moveCircle {
             0% {
                 transform: scale(1);
@@ -326,14 +307,7 @@ html{
             100% {
                 transform: scale(1);
             }
-        }
-
-
-
-
-
-
-
+   }
 input,textarea{
     width: 100%;
     border: none;
@@ -361,31 +335,13 @@ input:focus ,textarea:focus{
     text-align: center;
 }
 
-
-
 ::-webkit-scrollbar{
   display: none;
 }
-
-
-      /* background-image: linear-gradient(45deg, rgb(255, 255, 255), rgb(82, 81, 81), rgb(0, 0, 0)); */
-    
     #tog:hover{
       color: rgb(0, 0, 0);
       background-image: linear-gradient(45deg, green, white, orange);
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 .king{
     overflow: hidden;
@@ -394,14 +350,11 @@ input:focus ,textarea:focus{
 }
 
 .door-container {
-    /* overflow: hidden;*/
-    
-      width: 400px;
+  width: 400px;
   height: 300px;
   position: absolute; /* Changed from relative to absolute for centering */
   top: 7rem; /* Center vertically */
-  left: 50%; /* Center horizontally */
-  transform: translate(-50%, -50%); /* Adjusts to center accurately */
+  lef: 50%; /* Center horizontally *transform: translate(-50%, -50%); /* Adjusts to center accurately */
   perspective: 1000px;
     }
     .door {
@@ -430,8 +383,6 @@ input:focus ,textarea:focus{
       transform: rotateY(90deg);
     }
     .door-content {
-
-      /* padding-left: 15rem; */
       background-image: url(https://images.wallpaperscraft.com/image/single/starry_sky_milky_way_night_124665_1366x768.jpg);
       position: absolute;
       top: 0;
@@ -536,13 +487,11 @@ input:focus ,textarea:focus{
      height: 100vh;
      background-image: url(https://images.wallpaperscraft.com/image/single/starry_sky_milky_way_night_124665_1366x768.jpg);
       background-size: cover;
-      /* color: rgb(175, 18, 18); */
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 2rem;
       overflow: hidden;
-      /* transition: width 1s ease; */
     }
      .main{
       padding-left: 15rem;
@@ -555,7 +504,6 @@ input:focus ,textarea:focus{
 }
 
     .cover1{
-            /* border-radius: 3rem; */
             position: absolute;
             top: 0;
             left: 0;
@@ -575,21 +523,16 @@ input:focus ,textarea:focus{
     .boss2{
         color: white;
     }
-/* book area starts  */
 
 .itz-me{
     height: 29rem;
     border-radius: 2rem;
     margin-bottom: 2rem;
 }
-
-
 .book{
     padding-right: 2rem;
     margin-top: 4rem;
     margin-bottom: 2rem;
-    
-    /* padding-top: 3rem; */
 }
 
 .devil{
@@ -620,8 +563,6 @@ input:focus ,textarea:focus{
     transform: translateY(0); /* Move back down */
   }
 }
-
-        
 .flipbook .leaf {
   position: absolute;
   transform-style: preserve-3d;
@@ -656,8 +597,6 @@ input:focus ,textarea:focus{
   user-select: none;
   opacity: 0.6;
 }
-
-
 .page {
   padding: 1em;
 }
@@ -716,10 +655,7 @@ body[onload] .leaf:nth-child(3) {
 body[onload] div.leaf:nth-child(4) > div:nth-child(1) {
   background-color: #e76f51;
 }
-
-
-
-@keyframes ani {
+        @keyframes ani {
   0% {
     background-position: 0%;
   }
@@ -728,70 +664,18 @@ body[onload] div.leaf:nth-child(4) > div:nth-child(1) {
     background-position: 400%;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-        /* Initial hidden state for the div */
-        .hidden {
+  .hidden {
             display: none;
-        }
-
-        /* Style for the div when it's shown */
+  }
         #Img {
             opacity: 0;
             transform: translateY(20px);
-            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        transition: opacity 0.5s ease-out, transform 0.5s ease-out;
         }
-
-        /* Animation when the div becomes visible */
         #Img.visible {
             opacity: 1;
             transform: translateY(0);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        }
 .write{
   font-size: 1rem;
 
@@ -820,25 +704,6 @@ body[onload] div.leaf:nth-child(4) > div:nth-child(1) {
     font-size: 1rem;
     margin-bottom: 3rem;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* about hide part */
-
-  /* Initial hidden state for the div */
         .hidden {
             display: none;
         }
@@ -856,9 +721,6 @@ body[onload] div.leaf:nth-child(4) > div:nth-child(1) {
             /* transform: translateY(0); */
         }
 
-
-
- /* Initial hidden state for the div */
  .hidden {
             display: none;
         }
@@ -902,18 +764,10 @@ body[onload] div.leaf:nth-child(4) > div:nth-child(1) {
           <div class="container">
          <div class="row-conatainer">
             <div class="content">
-               
-
-
-              
-
-
                 <h3 class="write3">Hello !</h3>
                 <h1 class="write4">I'am Divyanshu Pandey</h1>
                 <h2 class="write5">Explore the journey of Coading</h2>
                 <p class="boss2">Hello! I'm Divyanshu Pandey, a Class 11<sup>th</sup> student passionate about CSS and HTML.</p>
-
-                 
               </div>
              <div class="img-container" alt="Divyanshu">
               <img src="https://github.com/Divyanshu-85/Required-Document/blob/main/me.jpg " class="pic" alt="Profile Picture of Divyanshu Pandey">
@@ -934,39 +788,8 @@ body[onload] div.leaf:nth-child(4) > div:nth-child(1) {
                   <input type="text" id="userInput" placeholder="Type your message...">
                   <button onclick="sendMessage()">Send</button>
                   <div class="typing-indicator" id="typing-indicator" style="display: none;">Chatbot is typing...</div>
-              </div>
-
-                         
-              
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="king">
+                 </div>
+                  <div class="king">
   <div id="aboutDiv" class="hidden">
 <div class="door-container">
   <div class="door left-door"><img src="https://github.com/Divyanshu-85/Required-Document/blob/main/2.jpg " class="cover1" id="coverleft1"> </div>
@@ -988,8 +811,6 @@ body[onload] div.leaf:nth-child(4) > div:nth-child(1) {
 </div>
 
 <div class="flash" id="flashEffect"></div>
-
-
 <div class="hidden-content" id="hiddenContent">
 
   <div class="bookbox">
@@ -1053,9 +874,6 @@ body[onload] div.leaf:nth-child(4) > div:nth-child(1) {
                     <p>Signature....<br>Divyanshu</p>
                 </div>
 
-
-
-                
                 <div class="page back external" style="background-color:#8d99ae; display: flex; align-items: center; justify-content: center;">
                     <h1 style="font-size: 2em; color: #fff;"><img src="https://github.com/Divyanshu-85/Required-Document/blob/main/back.jpg" class="devil"></h1>
                 </div>
@@ -1100,40 +918,8 @@ body[onload] div.leaf:nth-child(4) > div:nth-child(1) {
                   <pre class="com">© Divyanshu Pandey</pre>
                    
                       </div>
-                </footer>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                <script>
+                 </footer>
+    <script>
 // hide contect us
  // Get references to the link and the div
  const ContactLink = document.getElementById('ContactLink');
@@ -1153,19 +939,6 @@ body[onload] div.leaf:nth-child(4) > div:nth-child(1) {
                 setTimeout(() => ContactDiv.classList.add('visible'), 10); // Trigger animation
             }
         });
-
-
-
-
-
-
-
-
-
-
-
-
-
 let userName = "";
   let doorsOpened = false;
   const questions = [
@@ -1175,7 +948,7 @@ let userName = "";
      { question: "{name}, एक ऐसी किताब है जिसे खोल कर पढ़ो तो आपको सब कुछ समझ आ जाता है, पर जब बंद करते हो तो सब भूल जाते हो। वो क्या है?", answer: "Dreams" }
   ];
   
-  let currentQuestionIndex = 0;
+let currentQuestionIndex = 0;
   const questionElement = document.getElementById("question");
 
   function displayQuestion() {
@@ -1341,10 +1114,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
 
-
-        
-
-
 // Get references to the link and the div
         const coverleft1 = document.getElementById('coverleft1');
         const Img = document.getElementById('Img');
@@ -1358,23 +1127,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 Img.classList.remove('hidden');
                 setTimeout(() => Img.classList.add('visible'), 10); // Trigger animation
             }
-        });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        }) 
         const textElement = document.getElementById('mental');
         const message = " 🚩🚩जय श्री राम 🚩🚩";
         let index = 0;
@@ -1392,28 +1145,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
         window.onload = () => setTimeout(typeText, 1000); // Start typing after 1 second
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-              
-                
-                  const jokes = [
-                      "Why don't scientists trust atoms? Because they make up everything!",
+const jokes = [
+                      "Why don't scientist
+                      
+                      toms? Because they make up everything!",
                       "Why did the computer go to the doctor? It had a virus!",
                       "Why do programmers prefer dark mode? Because light attracts bugs!",
                       "Why did the programmer quit his job? Because he didn't get arrays!",
@@ -1532,42 +1267,4 @@ document.addEventListener("DOMContentLoaded", function() {
               
                   };
               </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                
-                
 </body></html>
